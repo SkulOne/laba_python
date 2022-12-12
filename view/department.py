@@ -5,7 +5,7 @@ import tkinter.font as font
 from dto.staff_dto import StaffDto
 
 
-class StaffView:
+class DepartmentView:
     def __init__(self):
         self.init_heading()
         self.search_surname = self.init_search_surname()
@@ -66,7 +66,7 @@ class StaffView:
 
     def init_search_button(self):
         btn = ttk.Button(text="Поиск", command=self.search)
-        btn.pack()
+        btn.place(relx=0.4, rely=0.4)
         return btn
 
     def cancel(self):
