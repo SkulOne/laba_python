@@ -3,10 +3,12 @@ from tkinter import ttk
 import tkinter.font as font
 
 from dto.staff_dto import StaffDto
+from view.staff_view import StaffView
 
 
 class DepartmentView:
-    def __init__(self):
+    def __init__(self, frame):
+        self.root = frame
         self.init_heading()
         self.search_surname = self.init_search_surname()
         self.search_name = self.init_search_name()
@@ -22,10 +24,13 @@ class DepartmentView:
         self.phoneEntry = self.init_entry_phone()
         self.emailEntry = self.init_entry_email()
         self.button = self.init_button()
+        self.root.pack()
+
 
     def init_table(self):
-        tree = ttk.Treeview(column=('ID', 'Surname', 'Name', 'Patronymic', 'Phone', 'Email'), height=10,
+        tree = ttk.Treeview(self.root, column=('ID', 'Surname', 'Name', 'Patronymic', 'Phone', 'Email'), height=10,
                             show='headings')
+        tree.bind('<Double-1>', self.route)
 
         tree.column('ID', width=35, anchor=tk.CENTER)
         tree.column('Surname', anchor=tk.CENTER)
@@ -44,11 +49,11 @@ class DepartmentView:
         return tree
 
     def init_heading(self):
-        label = ttk.Label(text='Таблица "Заголовки"', font=font.Font(size=40))
+        label = ttk.Label(self.root, text='Таблица "Организации"', font=font.Font(size=40))
         label.pack()
 
     def init_search_name(self):
-        frame = tk.Frame()
+        frame = tk.Frame(self.root)
         frame.pack(pady=20)
         label = ttk.Label(frame, text='Имя')
         label.pack(side=tk.LEFT)
@@ -65,7 +70,7 @@ class DepartmentView:
 
 
     def init_search_button(self):
-        btn = ttk.Button(text="Поиск", command=self.search)
+        btn = ttk.Button(self.root, text="Поиск", command=self.search)
         btn.place(relx=0.4, rely=0.4)
         return btn
 
@@ -77,12 +82,12 @@ class DepartmentView:
         self.set_data_to_table(users)
 
     def init_cancel_button(self):
-        btn_cancel = ttk.Button(text="Отменить", command=self.cancel)
+        btn_cancel = ttk.Button(self.root, text="Отменить", command=self.cancel)
         btn_cancel.pack()
         return btn_cancel
 
     def init_search_surname(self):
-        frame = tk.Frame()
+        frame = tk.Frame(self.root, )
         frame.pack(pady=20)
         label = ttk.Label(frame, text='Фамилия')
         label.pack(side=tk.LEFT)
@@ -91,7 +96,7 @@ class DepartmentView:
         return entry
 
     def init_entry_surname(self):
-        frame = tk.Frame()
+        frame = tk.Frame(self.root, )
         ttk.Label(frame, text="Фамилия").pack()
         entry = ttk.Entry(frame)
         entry.pack()
@@ -99,7 +104,7 @@ class DepartmentView:
         return entry
 
     def init_entry_name(self):
-        frame = tk.Frame()
+        frame = tk.Frame(self.root, )
         ttk.Label(frame, text="Имя").pack()
         entry = ttk.Entry(frame)
         entry.pack()
@@ -107,7 +112,7 @@ class DepartmentView:
         return entry
 
     def init_entry_patronymic(self):
-        frame = tk.Frame()
+        frame = tk.Frame(self.root, )
         ttk.Label(frame, text="Отчество").pack()
         entry = ttk.Entry(frame)
         entry.pack()
@@ -115,7 +120,7 @@ class DepartmentView:
         return entry
 
     def init_entry_phone(self):
-        frame = tk.Frame()
+        frame = tk.Frame(self.root, )
         ttk.Label(frame, text="Телефон").pack()
         entry = ttk.Entry(frame)
         entry.pack()
@@ -123,7 +128,7 @@ class DepartmentView:
         return entry
 
     def init_entry_email(self):
-        frame = tk.Frame()
+        frame = tk.Frame(self.root, )
         ttk.Label(frame, text="Почта").pack()
         entry = ttk.Entry(frame)
         entry.pack()
@@ -148,7 +153,7 @@ class DepartmentView:
             self.emailEntry.delete(0, 'end')
 
     def init_button(self):
-        btn = ttk.Button(text="Добавить", command=self.save)
+        btn = ttk.Button(self.root, text="Добавить", command=self.save)
         btn.pack(side=tk.RIGHT)
         return btn
 
@@ -161,3 +166,8 @@ class DepartmentView:
         for i in users:
             self.tree.insert('', 'end',
                              values=(i['id'], i['surname'], i['name'], i['patronymic'], i['phone'], i['email']))
+
+    def route(self, event):
+        print(event)
+        self.root.destroy()
+        staff = StaffView()

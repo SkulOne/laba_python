@@ -9,14 +9,10 @@ class Main(tk.Frame):
     def __init__(self, root):
         super().__init__(root)
 
-
-
-
-
 if __name__ == "__main__":
     root = tk.Tk()
-    staffView = StaffView()
-    departamentView = DepartmentView()
+    department = tk.Frame()
+    departamentView = DepartmentView(department)
     root.title("Управление персоналом организации")
     root.geometry("1650x1450")
     root.mainloop()
