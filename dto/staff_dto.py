@@ -3,17 +3,17 @@ from config import host, user, password, db_name
 
 
 class StaffDto:
-    def create_table(self):
-        connection = pymysql.connect(
+    def __int__(self):
+        self.connection = pymysql.connect(
             user=user,
             host=host,
             port=3306,
             password=password,
             database=db_name,
-            cursorclass=pymysql.cursors.DictCursor
-        )
+            cursorclass=pymysql.cursors.DictCursor)
+    def create_table(self):
         try:
-            with connection.cursor() as cursor:
+            with self.connection.cursor() as cursor:
                 create_table_query = "CREATE TABLE staff(id int AUTO_INCREMENT," \
                                      "surname varchar(32)," \
                                      "name varchar(32)," \
@@ -24,58 +24,34 @@ class StaffDto:
                 print("Table created successfully")
 
         finally:
-            connection.close()
+            self.connection.close()
 
     def insert_staff(self, surname, name, patronymic, phone, email):
-        connection = pymysql.connect(
-            user=user,
-            host=host,
-            port=3306,
-            password=password,
-            database=db_name,
-            cursorclass=pymysql.cursors.DictCursor
-        )
         try:
-            with connection.cursor() as cursor:
+            with self.connection.cursor() as cursor:
                 insert_query = f'INSERT INTO staff (`surname`, `name`, `patronymic`, `phone`, `email`) VALUES (%s, %s, %s, %s, %s)'
                 cursor.execute(insert_query, (surname, name, patronymic, phone, email))
-                connection.commit()
+                self.connection.commit()
 
         finally:
-            connection.close()
+            self.connection.close()
 
     def select_staff(self):
-        connection = pymysql.connect(
-            user=user,
-            host=host,
-            port=3306,
-            password=password,
-            database=db_name,
-            cursorclass=pymysql.cursors.DictCursor
-        )
         try:
-            with connection.cursor() as cursor:
+            with self.connection.cursor() as cursor:
                 select_table_query = "SELECT * from staff"
                 cursor.execute(select_table_query)
                 return cursor.fetchall()
 
         finally:
-            connection.close()
+            self.connection.close()
 
     def select_staff_by_name_surname(self, surname, name):
-        connection = pymysql.connect(
-            user=user,
-            host=host,
-            port=3306,
-            password=password,
-            database=db_name,
-            cursorclass=pymysql.cursors.DictCursor
-        )
         try:
-            with connection.cursor() as cursor:
+            with self.connection.cursor() as cursor:
                 select_table_query = f'SELECT * from staff WHERE name=%s OR surname=%s'
                 cursor.execute(select_table_query, (name, surname))
                 return cursor.fetchall()
 
         finally:
-            connection.close()
+            self.connection.close()

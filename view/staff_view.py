@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
 import tkinter.font as font
-
 from dto.staff_dto import StaffDto
 
 
@@ -62,7 +61,6 @@ class StaffView:
         staff_dto = StaffDto()
         searched = staff_dto.select_staff_by_name_surname(surname, name)
         self.set_data_to_table(searched)
-
 
     def init_search_button(self):
         btn = ttk.Button(text="Поиск", command=self.search)
