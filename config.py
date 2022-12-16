@@ -1,4 +1,4 @@
 host = 'localhost'
 user = 'root'
-password = 'root1234'
+password = 'root'
 db_name = 'organization_personnel_management'
