@@ -38,7 +38,7 @@ class ReviewsDto:
         )
         try:
             with connection.cursor() as cursor:
-                insert_query = f'INSERT INTO reviews (`department`, `employee`, `date`) VALUES (%s, %s, %s)'
+                insert_query = f'INSERT INTO reviews (`department_id`, `employee_id`, `review`, `date`) VALUES (%s, %s, %s, %s)'
                 cursor.execute(insert_query, (department, employee, date))
                 connection.commit()
 
