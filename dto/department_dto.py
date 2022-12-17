@@ -61,7 +61,7 @@ class DepartmentDto:
         finally:
             connection.close()
 
-    def select_department_by_count(self, employees_count, workplace_count):
+    def select_department_by_employees_count_workplace_count(self, employees_count, workplace_count):
         connection = pymysql.connect(
             user=user,
             host=host,
@@ -78,3 +78,13 @@ class DepartmentDto:
 
         finally:
             connection.close()
+
+    def set_data_to_table(self, users):
+        print('set')
+        print(users)
+        for row in self.tree.get_children():
+            self.tree.delete(row)
+
+        for i in users:
+            self.tree.insert('', 'end',
+                             values=(i['id'], i['name'], i['director'], i['employees_count'], i['workplace_count']))
