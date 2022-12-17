@@ -5,7 +5,7 @@ from dto.staff_dto import StaffDto
 
 
 class StaffView:
-    def __init__(self):
+    def __init__(self, id):
         self.init_heading()
         self.search_surname = self.init_search_surname()
         self.search_name = self.init_search_name()
@@ -21,6 +21,7 @@ class StaffView:
         self.phoneEntry = self.init_entry_phone()
         self.emailEntry = self.init_entry_email()
         self.button = self.init_button()
+        print(id)
 
     def init_table(self):
         tree = ttk.Treeview(column=('ID', 'Surname', 'Name', 'Patronymic', 'Phone', 'Email'), height=10,

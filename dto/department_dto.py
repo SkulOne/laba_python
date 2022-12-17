@@ -72,7 +72,7 @@ class DepartmentDto:
         )
         try:
             with connection.cursor() as cursor:
-                select_table_query = f'SELECT * from staff WHERE employees_count=%s OR workplace_count=%s'
+                select_table_query = f'SELECT * from department WHERE employees_count=%s OR workplace_count=%s'
                 cursor.execute(select_table_query, (employees_count, workplace_count))
                 return cursor.fetchall()
 
