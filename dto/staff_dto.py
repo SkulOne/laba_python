@@ -14,12 +14,12 @@ class StaffDto:
         )
         try:
             with connection.cursor() as cursor:
-                create_table_query = "CREATE TABLE staff(id int AUTO_INCREMENT," \
+                create_table_query = "CREATE TABLE staff(id int AUTO_INCREMENT PRIMARY KEY," \
                                      "surname varchar(32)," \
                                      "name varchar(32)," \
                                      "patronymic varchar(32)," \
-                                     "phone varchar(16)," \
-                                     "email varchar (64), PRIMARY KEY (id));"
+                                     "phone varchar(16) UNIQUE," \
+                                     "email varchar (64) UNIQUE)"
                 cursor.execute(create_table_query)
                 print("Table created successfully")
 

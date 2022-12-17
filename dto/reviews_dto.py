@@ -14,10 +14,13 @@ class ReviewsDto:
         )
         try:
             with connection.cursor() as cursor:
-                create_table_query = "CREATE TABLE reviews (id int AUTO_INCREMENT," \
-                                     "department varchar(32)," \
-                                     "employee varchar(254)," \
-                                     "date int(32), PRIMARY KEY (id));"
+                create_table_query = "CREATE TABLE reviews (" \
+                                     "id int PRIMARY KEY AUTO_INCREMENT," \
+                                     "department_id int," \
+                                     "employee_id int," \
+                                     "date DATE," \
+                                     "FOREIGN KEY (department_id) REFERENCES organization_personnel_management.department(id),"\
+                                     "FOREIGN KEY (employee_id) REFERENCES organization_personnel_management.staff(id))"
                 cursor.execute(create_table_query)
                 print("Table created successfully")
 
