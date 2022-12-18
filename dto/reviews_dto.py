@@ -18,6 +18,7 @@ class ReviewsDto:
                                      "id int PRIMARY KEY AUTO_INCREMENT," \
                                      "department_id int," \
                                      "employee_id int," \
+                                     "review varchar(256)," \
                                      "date DATE," \
                                      "FOREIGN KEY (department_id) REFERENCES organization_personnel_management.department(id),"\
                                      "FOREIGN KEY (employee_id) REFERENCES organization_personnel_management.staff(id))"
@@ -27,7 +28,7 @@ class ReviewsDto:
         finally:
             connection.close()
 
-    def insert_department(self, department, employee, date):
+    def insert_reviews(self, department_id, employee_id, review, date):
         connection = pymysql.connect(
             user=user,
             host=host,
@@ -39,13 +40,13 @@ class ReviewsDto:
         try:
             with connection.cursor() as cursor:
                 insert_query = f'INSERT INTO reviews (`department_id`, `employee_id`, `review`, `date`) VALUES (%s, %s, %s, %s)'
-                cursor.execute(insert_query, (department, employee, date))
+                cursor.execute(insert_query, (department_id, employee_id, review, date))
                 connection.commit()
 
         finally:
             connection.close()
 
-    def select_department(self):
+    def select_reviews(self):
         connection = pymysql.connect(
             user=user,
             host=host,
@@ -58,6 +59,24 @@ class ReviewsDto:
             with connection.cursor() as cursor:
                 select_table_query = "SELECT * from reviews"
                 cursor.execute(select_table_query)
+                return cursor.fetchall()
+
+        finally:
+            connection.close()
+
+    def select_reviews_by_employees_id_date(self, employees_id, date):
+        connection = pymysql.connect(
+            user=user,
+            host=host,
+            port=3306,
+            password=password,
+            database=db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        try:
+            with connection.cursor() as cursor:
+                select_table_query = f'SELECT * from reviews WHERE employee_id=%s OR date=%s'
+                cursor.execute(select_table_query, (employees_id, date))
                 return cursor.fetchall()
 
         finally:
