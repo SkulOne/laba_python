@@ -5,7 +5,6 @@ from dto.reviews_dto import ReviewsDto
 
 class ReviewsView:
     def __init__(self, frame):
-
         # Header
         self.root = frame
         self.search_block = tk.Frame(self.root)
@@ -21,7 +20,6 @@ class ReviewsView:
         self.init_cancel_button(button_frame)
         self.search_block.pack()
 
-
         # Table
         self.tree = self.init_table()
         reviews_dto = ReviewsDto()
@@ -29,10 +27,6 @@ class ReviewsView:
         self.set_data_to_table(reviews)
         self.init_headingH2()
         self.root.pack()
-
-
-
-
 
     def init_heading(self):
         label = ttk.Label(self.root, text='Таблица "Отзывы"', font=font.Font(size=40))

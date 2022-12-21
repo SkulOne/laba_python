@@ -5,7 +5,8 @@ from dto.staff_dto import StaffDto
 
 
 class StaffView:
-    def __init__(self, id):
+    def __init__(self, frame):
+        self.root = frame
         self.init_heading()
         self.search_surname = self.init_search_surname()
         self.search_name = self.init_search_name()
@@ -21,10 +22,10 @@ class StaffView:
         self.phoneEntry = self.init_entry_phone()
         self.emailEntry = self.init_entry_email()
         self.button = self.init_button()
-        print(id)
+        self.root.pack()
 
     def init_table(self):
-        tree = ttk.Treeview(column=('ID', 'Surname', 'Name', 'Patronymic', 'Phone', 'Email'), height=10,
+        tree = ttk.Treeview(self.root, column=('ID', 'Surname', 'Name', 'Patronymic', 'Phone', 'Email'), height=10,
                             show='headings')
 
         tree.column('ID', width=35, anchor=tk.CENTER)
@@ -44,11 +45,11 @@ class StaffView:
         return tree
 
     def init_heading(self):
-        label = ttk.Label(text='Таблица "Заголовки"', font=font.Font(size=40))
+        label = ttk.Label(self.root, text='Таблица "Заголовки"', font=font.Font(size=40))
         label.pack()
 
     def init_search_name(self):
-        frame = tk.Frame()
+        frame = tk.Frame(self.root)
         frame.pack(pady=20)
         label = ttk.Label(frame, text='Имя')
         label.pack(side=tk.LEFT)
@@ -64,7 +65,7 @@ class StaffView:
         self.set_data_to_table(searched)
 
     def init_search_button(self):
-        btn = ttk.Button(text="Поиск", command=self.search)
+        btn = ttk.Button(self.root, text="Поиск", command=self.search)
         btn.pack()
         return btn
 
@@ -76,12 +77,12 @@ class StaffView:
         self.set_data_to_table(users)
 
     def init_cancel_button(self):
-        btn_cancel = ttk.Button(text="Отменить", command=self.cancel)
+        btn_cancel = ttk.Button(self.root, text="Отменить", command=self.cancel)
         btn_cancel.pack()
         return btn_cancel
 
     def init_search_surname(self):
-        frame = tk.Frame()
+        frame = tk.Frame(self.root)
         frame.pack(pady=20)
         label = ttk.Label(frame, text='Фамилия')
         label.pack(side=tk.LEFT)
@@ -90,7 +91,7 @@ class StaffView:
         return entry
 
     def init_entry_surname(self):
-        frame = tk.Frame()
+        frame = tk.Frame(self.root)
         ttk.Label(frame, text="Фамилия").pack()
         entry = ttk.Entry(frame)
         entry.pack()
@@ -98,7 +99,7 @@ class StaffView:
         return entry
 
     def init_entry_name(self):
-        frame = tk.Frame()
+        frame = tk.Frame(self.root)
         ttk.Label(frame, text="Имя").pack()
         entry = ttk.Entry(frame)
         entry.pack()
@@ -106,7 +107,7 @@ class StaffView:
         return entry
 
     def init_entry_patronymic(self):
-        frame = tk.Frame()
+        frame = tk.Frame(self.root)
         ttk.Label(frame, text="Отчество").pack()
         entry = ttk.Entry(frame)
         entry.pack()
@@ -114,7 +115,7 @@ class StaffView:
         return entry
 
     def init_entry_phone(self):
-        frame = tk.Frame()
+        frame = tk.Frame(self.root)
         ttk.Label(frame, text="Телефон").pack()
         entry = ttk.Entry(frame)
         entry.pack()
@@ -122,7 +123,7 @@ class StaffView:
         return entry
 
     def init_entry_email(self):
-        frame = tk.Frame()
+        frame = tk.Frame(self.root)
         ttk.Label(frame, text="Почта").pack()
         entry = ttk.Entry(frame)
         entry.pack()
@@ -147,13 +148,11 @@ class StaffView:
             self.emailEntry.delete(0, 'end')
 
     def init_button(self):
-        btn = ttk.Button(text="Добавить", command=self.save)
+        btn = ttk.Button(self.root, text="Добавить", command=self.save)
         btn.pack(side=tk.RIGHT)
         return btn
 
     def set_data_to_table(self, users):
-        print('set')
-        print(users)
         for row in self.tree.get_children():
             self.tree.delete(row)
 
