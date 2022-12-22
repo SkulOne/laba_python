@@ -61,6 +61,25 @@ class DepartmentDto:
         finally:
             connection.close()
 
+    def select_department_name(self):
+        connection = pymysql.connect(
+            user=user,
+            host=host,
+            port=3306,
+            password=password,
+            database=db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        try:
+            with connection.cursor() as cursor:
+                select_table_query = "SELECT name from department"
+                cursor.execute(select_table_query)
+                ar = cursor.fetchall()
+                return list(map(lambda x: x['name'], ar))
+
+        finally:
+            connection.close()
+
     def select_department_by_employees_count_workplace_count(self, employees_count, workplace_count):
         connection = pymysql.connect(
             user=user,
@@ -79,12 +98,3 @@ class DepartmentDto:
         finally:
             connection.close()
 
-    def set_data_to_table(self, users):
-        print('set')
-        print(users)
-        for row in self.tree.get_children():
-            self.tree.delete(row)
-
-        for i in users:
-            self.tree.insert('', 'end',
-                             values=(i['id'], i['name'], i['director'], i['employees_count'], i['workplace_count']))

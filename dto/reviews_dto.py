@@ -57,7 +57,7 @@ class ReviewsDto:
         )
         try:
             with connection.cursor() as cursor:
-                select_table_query = "SELECT * from reviews"
+                select_table_query = "select r.id, d.name, s.surname, date, review from reviews as r JOIN department d on r.department_id = d.id join staff s on r.employee_id = s.id"
                 cursor.execute(select_table_query)
                 return cursor.fetchall()
 
@@ -81,3 +81,11 @@ class ReviewsDto:
 
         finally:
             connection.close()
+
+
+class Review:
+    def __int__(self, department_name, employee_surname, date, review):
+        self.department_name = department_name
+        self.employee_surname = employee_surname
+        self.date = date
+        self.review = review

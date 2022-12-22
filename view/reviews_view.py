@@ -1,13 +1,20 @@
 import tkinter as tk
 from tkinter import ttk
 import tkinter.font as font
+
+from tkcalendar import DateEntry
+
+from dto.department_dto import DepartmentDto
 from dto.reviews_dto import ReviewsDto
+from dto.staff_dto import StaffDto
+
 
 class ReviewsView:
     def __init__(self, frame):
         # Header
         self.root = frame
         self.search_block = tk.Frame(self.root)
+        self.add_block = tk.Frame(self.root)
         button_frame = tk.Frame(self.root)
         self.init_heading()
         button_frame.pack()
@@ -25,7 +32,14 @@ class ReviewsView:
         reviews_dto = ReviewsDto()
         reviews = reviews_dto.select_reviews()
         self.set_data_to_table(reviews)
+
         self.init_headingH2()
+        department_select = self.init_department_select()
+        employee_select = self.init_employee_select()
+        date_entry = self.init_date_entry()
+        self.add_block.pack()
+        review_entry = self.init_review_entry()
+
         self.root.pack()
 
     def init_heading(self):
@@ -33,17 +47,17 @@ class ReviewsView:
         label.pack()
 
     def init_button_word(self, frame):
-        btn_cancel = ttk.Button(frame, text="Общий отчет Word") # command=
+        btn_cancel = ttk.Button(frame, text="Общий отчет Word")  # command=
         btn_cancel.pack(side=tk.LEFT)
         return btn_cancel
 
     def init_button_excel(self, frame):
-        btn_cancel = ttk.Button(frame, text="Общий отчет Excel") # command=
+        btn_cancel = ttk.Button(frame, text="Общий отчет Excel")  # command=
         btn_cancel.pack(padx=80, side=tk.LEFT)
         return btn_cancel
 
     def init_button_employees(self, frame):
-        btn_cancel = ttk.Button(frame, text="Отчет по сотруднику") # command=
+        btn_cancel = ttk.Button(frame, text="Отчет по сотруднику")  # command=
         btn_cancel.pack(side=tk.LEFT)
         return btn_cancel
 
@@ -93,7 +107,7 @@ class ReviewsView:
 
         for i in reviews:
             self.tree.insert('', 'end',
-                             values=(i['id'], i['department_id'], i['employee_id'], i['review'], i['date']))
+                             values=(i['id'], i['name'], i['surname'], i['date'], i['review'],))
 
     def init_table(self):
         tree = ttk.Treeview(self.root, column=('ID', 'department_id', 'employee_id', 'review', 'date'), height=10,
@@ -117,3 +131,37 @@ class ReviewsView:
     def init_headingH2(self):
         label = ttk.Label(self.root, text='Добавить новый отзыв', font=font.Font(size=20))
         label.pack()
+
+    def init_department_select(self):
+        frame = tk.Frame(self.add_block)
+        ttk.Label(frame, text='Отдел').pack()
+        department_dto = DepartmentDto()
+        entry = ttk.Combobox(frame, values=department_dto.select_department_name())
+        entry.pack(side=tk.RIGHT)
+        frame.pack(side=tk.LEFT)
+        return entry
+
+    def init_employee_select(self):
+        frame = tk.Frame(self.add_block)
+        ttk.Label(frame, text='Сотрудник').pack()
+        staff_dto = StaffDto()
+        entry = ttk.Combobox(frame, values=staff_dto.select_surname())
+        entry.pack(side=tk.RIGHT)
+        frame.pack(side=tk.LEFT)
+        return entry
+
+    def init_date_entry(self):
+        frame = tk.Frame(self.add_block)
+        ttk.Label(frame, text='Дата').pack()
+        entry = DateEntry(frame)
+        entry.pack(side=tk.RIGHT)
+        frame.pack(side=tk.LEFT)
+        return entry
+
+    def init_review_entry(self):
+        frame = tk.Frame(self.root)
+        ttk.Label(frame, text='Отзыв').pack()
+        entry = tk.Text(frame, height=10)
+        entry.pack(side=tk.RIGHT)
+        frame.pack()
+        return entry

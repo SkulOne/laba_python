@@ -62,6 +62,25 @@ class StaffDto:
         finally:
             connection.close()
 
+    def select_surname(self):
+        connection = pymysql.connect(
+            user=user,
+            host=host,
+            port=3306,
+            password=password,
+            database=db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        try:
+            with connection.cursor() as cursor:
+                select_table_query = "SELECT name, surname from staff"
+                cursor.execute(select_table_query)
+                ar = cursor.fetchall()
+                return list(map(lambda x: x['surname'] + ' ' + x['name'], ar))
+
+        finally:
+            connection.close()
+
     def select_staff_by_name_surname(self, surname, name):
         connection = pymysql.connect(
             user=user,
