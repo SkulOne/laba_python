@@ -1,3 +1,4 @@
+import datetime
 import tkinter as tk
 from tkinter import ttk
 import tkinter.font as font
@@ -34,11 +35,13 @@ class ReviewsView:
         self.set_data_to_table(reviews)
 
         self.init_headingH2()
-        department_select = self.init_department_select()
-        employee_select = self.init_employee_select()
-        date_entry = self.init_date_entry()
+        self.department_select = self.init_department_select()
+        self.staff_select = self.init_employee_select()
+        self.date_entry = self.init_date_entry()
         self.add_block.pack()
-        review_entry = self.init_review_entry()
+        self.review_entry = self.init_review_entry()
+
+        self.init_add_button()
 
         self.root.pack()
 
@@ -107,7 +110,7 @@ class ReviewsView:
 
         for i in reviews:
             self.tree.insert('', 'end',
-                             values=(i['id'], i['name'], i['surname'], i['date'], i['review'],))
+                             values=(i['id'], i['name'], i['surname'], i['review'], i['date'] ))
 
     def init_table(self):
         tree = ttk.Treeview(self.root, column=('ID', 'department_id', 'employee_id', 'review', 'date'), height=10,
@@ -165,3 +168,21 @@ class ReviewsView:
         entry.pack(side=tk.RIGHT)
         frame.pack()
         return entry
+
+    def init_add_button(self):
+        button = tk.Button(self.root, text='Добавить', command=self.save_reviews)
+        button.pack()
+
+    def save_reviews(self):
+        reviews_dto = ReviewsDto()
+        department_value = self.department_select.get()
+        staff_value = self.staff_select.get().split(' ')
+        date_value = self.date_entry.get().split('.')
+        review_value = self.review_entry.get("1.0", 'end-1c')
+        if department_value and staff_value and date_value and review_value:
+            department_id = DepartmentDto().select_department_by_name(department_value)[0]['id']
+            staff_id = StaffDto().select_staff_by_name_surname(staff_value[0], staff_value[1])[0]['id']
+            date = datetime.date(int(date_value[2]), int(date_value[1]), int(date_value[0]))
+            print(date_value)
+            reviews_dto.insert_reviews(department_id, staff_id, review_value, date)
+        self.set_data_to_table(reviews_dto.select_reviews())

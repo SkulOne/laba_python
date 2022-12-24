@@ -98,3 +98,20 @@ class DepartmentDto:
         finally:
             connection.close()
 
+    def select_department_by_name(self, name):
+        connection = pymysql.connect(
+            user=user,
+            host=host,
+            port=3306,
+            password=password,
+            database=db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        try:
+            with connection.cursor() as cursor:
+                select_table_query = f'SELECT * from department WHERE name=%s'
+                cursor.execute(select_table_query, name)
+                return cursor.fetchall()
+
+        finally:
+            connection.close()
