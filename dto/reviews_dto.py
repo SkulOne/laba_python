@@ -81,3 +81,21 @@ class ReviewsDto:
 
         finally:
             connection.close()
+
+    def delete_by_id(self, id):
+        connection = pymysql.connect(
+            user=user,
+            host=host,
+            port=3306,
+            password=password,
+            database=db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        try:
+            with connection.cursor() as cursor:
+                select_table_query = f'DELETE from reviews WHERE id=%s'
+                cursor.execute(select_table_query, id)
+                connection.commit()
+
+        finally:
+            connection.close()

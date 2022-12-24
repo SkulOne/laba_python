@@ -43,7 +43,7 @@ class ReviewsView:
         self.add_block.pack()
         self.review_entry = self.init_review_entry()
 
-        self.init_add_button()
+        self.add_button = self.init_add_button()
 
         self.root.pack()
 
@@ -109,26 +109,40 @@ class ReviewsView:
 
         for i in reviews:
             self.tree.insert('', 'end',
-                             values=(i['id'], i['name'], i['surname'], i['review'], i['date'] ))
+                             values=(i['id'], i['name'], i['surname'], i['review'], i['date'], 'ПРАВКА', 'УДАЛИТЬ' ))
 
     def init_table(self):
-        tree = ttk.Treeview(self.root, column=('ID', 'department_id', 'employee_id', 'review', 'date'), height=10,
+        tree = ttk.Treeview(self.root, column=('ID', 'department_id', 'employee_id', 'review', 'date', 'edit', 'delete'), height=10,
                             show='headings')
-        # tree.bind('<Double-1>', self.route)
+        tree.bind('<ButtonRelease-1>', self.select_item)
 
         tree.column('ID', width=35, anchor=tk.CENTER)
         tree.column('department_id', anchor=tk.CENTER)
         tree.column('employee_id', anchor=tk.CENTER)
         tree.column('review', anchor=tk.CENTER)
         tree.column('date', anchor=tk.CENTER)
+        tree.column('edit', anchor=tk.CENTER, width=75)
+        tree.column('delete', anchor=tk.CENTER, width=75)
 
         tree.heading('ID', text='ID')
         tree.heading('department_id', text='Отдел')
         tree.heading('employee_id', text='Сотрудник')
         tree.heading('review', text='Отзыв')
         tree.heading('date', text='Дата')
+        tree.heading('edit', text='Правка')
+        tree.heading('delete', text='Удалить')
         tree.pack()
         return tree
+
+    def select_item(self, event):
+        cur_item = self.tree.item(self.tree.focus())
+        col = self.tree.identify_column(event.x)[1]
+        method = cur_item['values'][int(col)-1]
+        if method == 'УДАЛИТЬ':
+            reviews_dto = ReviewsDto()
+            reviews_dto.delete_by_id(cur_item['values'][0])
+            self.set_data_to_table(reviews_dto.select_reviews())
+
 
     def init_headingH2(self):
         label = ttk.Label(self.root, text='Добавить новый отзыв', font=font.Font(size=20))
@@ -171,6 +185,7 @@ class ReviewsView:
     def init_add_button(self):
         button = tk.Button(self.root, text='Добавить', command=self.save_reviews)
         button.pack()
+        return button
 
     def save_reviews(self):
         reviews_dto = ReviewsDto()
