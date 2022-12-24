@@ -75,17 +75,9 @@ class ReviewsDto:
         )
         try:
             with connection.cursor() as cursor:
-                select_table_query = f'SELECT * from reviews WHERE employee_id=%s OR date=%s'
+                select_table_query = f'SELECT r.id, d.name, s.surname, date, review from reviews as r JOIN department d on d.id = r.department_id join staff s on s.id = r.employee_id WHERE employee_id=%s AND date=%s'
                 cursor.execute(select_table_query, (employees_id, date))
                 return cursor.fetchall()
 
         finally:
             connection.close()
-
-
-class Review:
-    def __int__(self, department_name, employee_surname, date, review):
-        self.department_name = department_name
-        self.employee_surname = employee_surname
-        self.date = date
-        self.review = review

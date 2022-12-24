@@ -22,11 +22,13 @@ class ReviewsView:
         self.init_button_word(button_frame)
         self.init_button_excel(button_frame)
         self.init_button_employees(button_frame)
-        self.search_employees_id_entry = self.init_search_by_employees_id()
-        self.search_data_entry = self.init_search_by_data()
-        self.init_search_button(button_frame)
-        self.init_cancel_button(button_frame)
+        self.search_employees_id_entry = self.init_employee_select(self.search_block, tk.LEFT)
+        self.search_data_entry = self.init_date_entry(self.search_block, tk.LEFT)
         self.search_block.pack()
+        search_button_frame = tk.Frame(self.root)
+        self.init_search_button(search_button_frame)
+        self.init_cancel_button(search_button_frame)
+        search_button_frame.pack()
 
         # Table
         self.tree = self.init_table()
@@ -36,8 +38,8 @@ class ReviewsView:
 
         self.init_headingH2()
         self.department_select = self.init_department_select()
-        self.staff_select = self.init_employee_select()
-        self.date_entry = self.init_date_entry()
+        self.staff_select = self.init_employee_select(self.add_block, tk.TOP)
+        self.date_entry = self.init_date_entry(self.add_block, tk.TOP)
         self.add_block.pack()
         self.review_entry = self.init_review_entry()
 
@@ -64,15 +66,7 @@ class ReviewsView:
         btn_cancel.pack(side=tk.LEFT)
         return btn_cancel
 
-    def init_search_by_employees_id(self):
-        entry_frame = ttk.Frame(self.search_block)
-        ttk.Label(entry_frame, text="Сотрудник").pack(side=tk.LEFT)
-        entry = ttk.Entry(entry_frame)
-        entry.pack(side=tk.RIGHT)
-        entry_frame.pack(side=tk.LEFT)
-        return entry
-
-    def init_search_by_data(self):
+    def init_search_by_date(self):
         entry_frame = ttk.Frame(self.search_block)
         ttk.Label(entry_frame, text="Дата").pack(side=tk.LEFT)
         entry = ttk.Entry(entry_frame)
@@ -81,11 +75,16 @@ class ReviewsView:
         return entry
 
     def search(self):
-        employees_id = self.search_employees_id_entry.get()
-        date = self.search_data_entry.get()
-        reviews_dto = ReviewsDto()
-        searched = reviews_dto.select_reviews_by_employees_id_date(employees_id, date)
-        self.set_data_to_table(searched)
+        staff_value = self.search_employees_id_entry.get().split(' ')
+        date_value = self.search_data_entry.get().split('.')
+        if staff_value and date_value:
+            reviews_dto = ReviewsDto()
+            staff_id = StaffDto().select_staff_by_name_surname(staff_value[0], staff_value[1])[0]['id']
+            print(staff_id)
+            date = datetime.date(int(date_value[2]), int(date_value[1]), int(date_value[0]))
+            searched = reviews_dto.select_reviews_by_employees_id_date(staff_id, date)
+            print(len(searched))
+            self.set_data_to_table(searched)
 
     def init_search_button(self, frame):
         btn = ttk.Button(frame, text="Поиск", command=self.search)
@@ -96,7 +95,7 @@ class ReviewsView:
         self.search_employees_id_entry.delete(0, 'end')
         self.search_data_entry.delete(0, 'end')
         user_dto = ReviewsDto()
-        users = user_dto.select_reviews_by_employees_id_date()
+        users = user_dto.select_reviews()
         self.set_data_to_table(users)
 
     def init_cancel_button(self, frame):
@@ -139,24 +138,24 @@ class ReviewsView:
         frame = tk.Frame(self.add_block)
         ttk.Label(frame, text='Отдел').pack()
         department_dto = DepartmentDto()
-        entry = ttk.Combobox(frame, values=department_dto.select_department_name())
+        entry = ttk.Combobox(frame, values=department_dto.select_department_name(), state="readonly")
         entry.pack(side=tk.RIGHT)
         frame.pack(side=tk.LEFT)
         return entry
 
-    def init_employee_select(self):
-        frame = tk.Frame(self.add_block)
-        ttk.Label(frame, text='Сотрудник').pack()
+    def init_employee_select(self, frame, label_side):
+        frame = tk.Frame(frame)
+        ttk.Label(frame, text='Сотрудник').pack(side=label_side)
         staff_dto = StaffDto()
-        entry = ttk.Combobox(frame, values=staff_dto.select_surname())
+        entry = ttk.Combobox(frame, values=staff_dto.select_surname(), state="readonly")
         entry.pack(side=tk.RIGHT)
         frame.pack(side=tk.LEFT)
         return entry
 
-    def init_date_entry(self):
-        frame = tk.Frame(self.add_block)
-        ttk.Label(frame, text='Дата').pack()
-        entry = DateEntry(frame)
+    def init_date_entry(self, frame, label_side):
+        frame = tk.Frame(frame)
+        ttk.Label(frame, text='Дата').pack(side=label_side)
+        entry = DateEntry(frame, state="readonly")
         entry.pack(side=tk.RIGHT)
         frame.pack(side=tk.LEFT)
         return entry
@@ -183,6 +182,5 @@ class ReviewsView:
             department_id = DepartmentDto().select_department_by_name(department_value)[0]['id']
             staff_id = StaffDto().select_staff_by_name_surname(staff_value[0], staff_value[1])[0]['id']
             date = datetime.date(int(date_value[2]), int(date_value[1]), int(date_value[0]))
-            print(date_value)
             reviews_dto.insert_reviews(department_id, staff_id, review_value, date)
         self.set_data_to_table(reviews_dto.select_reviews())
