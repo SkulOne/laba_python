@@ -61,7 +61,7 @@ class StaffView:
         surname = self.search_surname.get()
         name = self.search_name.get()
         staff_dto = StaffDto()
-        searched = staff_dto.select_staff_by_name_surname(surname, name)
+        searched = staff_dto.select_staff_by_surname_name(surname, name)
         self.set_data_to_table(searched)
 
     def init_search_button(self):

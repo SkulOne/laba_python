@@ -76,10 +76,12 @@ class ReviewsView:
 
     def search(self):
         staff_value = self.search_employees_id_entry.get().split(' ')
+        print(staff_value)
         date_value = self.search_data_entry.get().split('.')
         if staff_value and date_value:
             reviews_dto = ReviewsDto()
-            staff_id = StaffDto().select_staff_by_name_surname(staff_value[0], staff_value[1])[0]['id']
+            print(StaffDto().select_staff_by_surname_name(staff_value[0], staff_value[1]))
+            staff_id = StaffDto().select_staff_by_surname_name(staff_value[0], staff_value[1])[0]['id']
             date = datetime.date(int(date_value[2]), int(date_value[1]), int(date_value[0]))
             searched = reviews_dto.select_reviews_by_employees_id_date(staff_id, date)
             self.set_data_to_table(searched)
@@ -92,9 +94,9 @@ class ReviewsView:
     def cancel(self):
         self.search_employees_id_entry.delete(0, 'end')
         self.search_data_entry.delete(0, 'end')
-        user_dto = ReviewsDto()
-        users = user_dto.select_reviews()
-        self.set_data_to_table(users)
+        reviews_dto = ReviewsDto()
+        reviews = reviews_dto.select_reviews()
+        self.set_data_to_table(reviews)
 
     def init_cancel_button(self, frame):
         btn_cancel = ttk.Button(frame, text="Отменить", command=self.cancel)
@@ -105,9 +107,12 @@ class ReviewsView:
         for row in self.tree.get_children():
             self.tree.delete(row)
 
+
         for i in reviews:
+            date = i['date'].strftime('%d.%m.%Y')
+            print(i)
             self.tree.insert('', 'end',
-                             values=(i['id'], i['name'], i['surname'], i['review'], i['date'], 'ПРАВКА', 'УДАЛИТЬ' ))
+                             values=(i['id'], i['name'], i['surname']+' '+i['s.name'], i['review'], date, 'ПРАВКА', 'УДАЛИТЬ' ))
 
     def init_table(self):
         tree = ttk.Treeview(self.root, column=('ID', 'department_id', 'employee_id', 'review', 'date', 'edit', 'delete'), height=10,
@@ -140,6 +145,31 @@ class ReviewsView:
             reviews_dto = ReviewsDto()
             reviews_dto.delete_by_id(cur_item['values'][0])
             self.set_data_to_table(reviews_dto.select_reviews())
+        if method == 'ПРАВКА':
+            self.staff_select.set(cur_item['values'][2])
+            self.department_select.set(cur_item['values'][1])
+            self.date_entry.set_date(cur_item['values'][4])
+            self.review_entry.delete('1.0', tk.END)
+            self.review_entry.insert('1.0', cur_item['values'][3])
+            self.add_button.config(text='Править', command=lambda: self.update(cur_item['values'][0]))
+
+    def update(self, id):
+        reviews_dto = ReviewsDto()
+        department_value = self.department_select.get()
+        staff_value = self.staff_select.get().split(' ')
+        date_value = self.date_entry.get().split('.')
+        review_value = self.review_entry.get('1.0', tk.END)
+        if department_value and staff_value and date_value and review_value:
+            department_id = DepartmentDto().select_department_by_name(department_value)[0]['id']
+            staff_id = StaffDto().select_staff_by_surname_name(staff_value[0], staff_value[1])[0]['id']
+            date = datetime.date(int(date_value[2]), int(date_value[1]), int(date_value[0]))
+            reviews_dto.update(id, department_id, staff_id, review_value, date)
+        self.department_select.set('')
+        self.staff_select.set('')
+        self.review_entry.delete('1.0', tk.END)
+        self.date_entry.set_date(datetime.datetime.today())
+        self.add_button.config(text='Добавить', command=self.save_reviews)
+        self.set_data_to_table(reviews_dto.select_reviews())
 
 
     def init_headingH2(self):
@@ -188,12 +218,13 @@ class ReviewsView:
     def save_reviews(self):
         reviews_dto = ReviewsDto()
         department_value = self.department_select.get()
+        print(department_value)
         staff_value = self.staff_select.get().split(' ')
         date_value = self.date_entry.get().split('.')
         review_value = self.review_entry.get("1.0", 'end-1c')
         if department_value and staff_value and date_value and review_value:
             department_id = DepartmentDto().select_department_by_name(department_value)[0]['id']
-            staff_id = StaffDto().select_staff_by_name_surname(staff_value[0], staff_value[1])[0]['id']
+            staff_id = StaffDto().select_staff_by_surname_name(staff_value[0], staff_value[1])[0]['id']
             date = datetime.date(int(date_value[2]), int(date_value[1]), int(date_value[0]))
             reviews_dto.insert_reviews(department_id, staff_id, review_value, date)
         self.set_data_to_table(reviews_dto.select_reviews())

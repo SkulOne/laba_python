@@ -81,7 +81,7 @@ class StaffDto:
         finally:
             connection.close()
 
-    def select_staff_by_name_surname(self, surname, name):
+    def select_staff_by_surname_name(self, surname, name):
         connection = pymysql.connect(
             user=user,
             host=host,
@@ -92,8 +92,8 @@ class StaffDto:
         )
         try:
             with connection.cursor() as cursor:
-                select_table_query = f'SELECT * from staff WHERE name=%s OR surname=%s'
-                cursor.execute(select_table_query, (name, surname))
+                select_table_query = f'SELECT * from staff WHERE surname=%s AND name=%s'
+                cursor.execute(select_table_query, (surname, name))
                 return cursor.fetchall()
 
         finally:
