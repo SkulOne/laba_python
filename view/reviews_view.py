@@ -36,13 +36,13 @@ class ReviewsView:
         reviews = reviews_dto.select_reviews()
         self.set_data_to_table(reviews)
 
+        # Add
         self.init_headingH2()
         self.department_select = self.init_department_select()
         self.staff_select = self.init_employee_select(self.add_block, tk.TOP)
         self.date_entry = self.init_date_entry(self.add_block, tk.TOP)
         self.add_block.pack()
         self.review_entry = self.init_review_entry()
-
         self.add_button = self.init_add_button()
 
         self.root.pack()
@@ -80,10 +80,8 @@ class ReviewsView:
         if staff_value and date_value:
             reviews_dto = ReviewsDto()
             staff_id = StaffDto().select_staff_by_name_surname(staff_value[0], staff_value[1])[0]['id']
-            print(staff_id)
             date = datetime.date(int(date_value[2]), int(date_value[1]), int(date_value[0]))
             searched = reviews_dto.select_reviews_by_employees_id_date(staff_id, date)
-            print(len(searched))
             self.set_data_to_table(searched)
 
     def init_search_button(self, frame):
@@ -169,7 +167,7 @@ class ReviewsView:
     def init_date_entry(self, frame, label_side):
         frame = tk.Frame(frame)
         ttk.Label(frame, text='Дата').pack(side=label_side)
-        entry = DateEntry(frame, state="readonly")
+        entry = DateEntry(frame, state="readonly", date_pattern='dd.MM.yyyy')
         entry.pack(side=tk.RIGHT)
         frame.pack(side=tk.LEFT)
         return entry
