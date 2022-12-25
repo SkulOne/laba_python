@@ -117,3 +117,21 @@ class ReviewsDto:
 
         finally:
             connection.close()
+
+    def select_by_id(self, staff_id):
+        connection = pymysql.connect(
+            user=user,
+            host=host,
+            port=3306,
+            password=password,
+            database=db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        try:
+            with connection.cursor() as cursor:
+                select_table_query = f'SELECT r.id, d.name, date, review from reviews as r JOIN department d on d.id = r.department_id join staff s on s.id = r.employee_id WHERE employee_id=%s'
+                cursor.execute(select_table_query, staff_id)
+                return cursor.fetchall()
+
+        finally:
+            connection.close()

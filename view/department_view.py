@@ -3,8 +3,6 @@ from tkinter import ttk
 import tkinter.font as font
 
 from dto.department_dto import DepartmentDto
-from view.staff_view import StaffView
-
 
 class DepartmentView:
     def __init__(self, frame):
@@ -177,7 +175,7 @@ class DepartmentView:
         department_dto = DepartmentDto()
         searched = department_dto.select_department_by_employees_count_workplace_count(employees_count, workplace_count)
         self.set_data_to_table(searched)
-    #
+
     def set_data_to_table(self, departments):
         for row in self.tree.get_children():
             self.tree.delete(row)
@@ -186,12 +184,6 @@ class DepartmentView:
             self.tree.insert('', 'end',
                              values=(i['id'], i['name'], i['director'], i['employees_count'], i['workplace_count'], 'ПРАВКА', 'УДАЛИТЬ'))
 
-    def route(self, event):
-        print(event)
-        selected_item = self.tree.selection()[0]
-        id = self.tree.item(selected_item, option="values")[0]
-        self.root.destroy()
-        staff = StaffView(id)
 
     def update(self, id):
         department_dto = DepartmentDto()

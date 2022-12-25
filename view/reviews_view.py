@@ -25,7 +25,7 @@ class ReviewsView:
         button_frame.pack()
         self.init_button_word(button_frame)
         self.init_button_excel(button_frame)
-        self.init_button_employees(button_frame)
+        self.init_button_report_by_staff(button_frame)
         self.search_employees_id_entry = self.init_employee_select(self.search_block, tk.LEFT)
         self.search_data_entry = self.init_date_entry(self.search_block, tk.LEFT)
         self.search_block.pack()
@@ -96,10 +96,31 @@ class ReviewsView:
 
         writer.save()
 
-    def init_button_employees(self, frame):
-        btn_cancel = ttk.Button(frame, text="Отчет по сотруднику")  # command=
+    def init_button_report_by_staff(self, frame):
+        btn_cancel = ttk.Button(frame, text="Отчет по сотруднику", command=self.report_by_selected)
         btn_cancel.pack(side=tk.LEFT)
         return btn_cancel
+
+    def report_by_selected(self):
+        if self.tree.focus():
+            selected_name = self.tree.item(self.tree.focus())['values'][2].split(' ')
+            staff_id = StaffDto().select_staff_by_surname_name(selected_name[0], selected_name[1])[0]['id']
+            all_reviews = ReviewsDto().select_by_id(staff_id)
+            file_name = f'Отзыв {selected_name[0]} {selected_name[1]}.xlsx'
+            lst = []
+            cols = ['ID', 'Отдел', 'Отзыв', 'Дата']
+            with open('source-staff-report.cvs', "w", newline='') as myfile:
+                csvwriter = csv.writer(myfile, delimiter=',')
+                for row in all_reviews:
+                    lst.append(row.values())
+                lst = list(map(list, lst))
+                lst.insert(0, cols)
+                for row in lst:
+                    csvwriter.writerow(row)
+            writer = pd.ExcelWriter(file_name)
+            df = pd.read_csv('source-staff-report.cvs')
+            df.to_excel(writer, file_name, index=False)
+            writer.save()
 
     def init_search_by_date(self):
         entry_frame = ttk.Frame(self.search_block)
@@ -111,11 +132,9 @@ class ReviewsView:
 
     def search(self):
         staff_value = self.search_employees_id_entry.get().split(' ')
-        print(staff_value)
         date_value = self.search_data_entry.get().split('.')
-        if staff_value and date_value:
+        if staff_value[0] and date_value:
             reviews_dto = ReviewsDto()
-            print(StaffDto().select_staff_by_surname_name(staff_value[0], staff_value[1]))
             staff_id = StaffDto().select_staff_by_surname_name(staff_value[0], staff_value[1])[0]['id']
             date = datetime.date(int(date_value[2]), int(date_value[1]), int(date_value[0]))
             searched = reviews_dto.select_reviews_by_employees_id_date(staff_id, date)
@@ -144,7 +163,6 @@ class ReviewsView:
 
         for i in reviews:
             date = i['date'].strftime('%d.%m.%Y')
-            print(i)
             self.tree.insert('', 'end',
                              values=(i['id'], i['name'], i['surname']+' '+i['s.name'], i['review'], date, 'ПРАВКА', 'УДАЛИТЬ' ))
 
@@ -180,7 +198,6 @@ class ReviewsView:
             reviews_dto.delete_by_id(cur_item['values'][0])
             self.set_data_to_table(reviews_dto.select_reviews())
         if method == 'ПРАВКА':
-            print(cur_item)
             self.staff_select.set(cur_item['values'][2])
             self.department_select.set(cur_item['values'][1])
             self.date_entry.set_date(cur_item['values'][4])
@@ -224,7 +241,7 @@ class ReviewsView:
         frame = tk.Frame(frame)
         ttk.Label(frame, text='Сотрудник').pack(side=label_side)
         staff_dto = StaffDto()
-        entry = ttk.Combobox(frame, values=staff_dto.select_surname(), state="readonly")
+        entry = ttk.Combobox(frame, values=staff_dto.select_name_and_surname(), state="readonly")
         entry.pack(side=tk.RIGHT)
         frame.pack(side=tk.LEFT)
         return entry
@@ -253,7 +270,6 @@ class ReviewsView:
     def save_reviews(self):
         reviews_dto = ReviewsDto()
         department_value = self.department_select.get()
-        print(department_value)
         staff_value = self.staff_select.get().split(' ')
         date_value = self.date_entry.get().split('.')
         review_value = self.review_entry.get("1.0", 'end-1c')
@@ -272,7 +288,6 @@ class ReviewsView:
             csvwriter = csv.writer(myfile, delimiter=',')
             for row_id in child:
                 row = self.tree.item(row_id, 'values')[:-2]
-                print(row)
                 lst.append(row)
             lst = list(map(list, lst))
             lst.insert(0, cols)

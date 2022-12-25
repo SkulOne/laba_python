@@ -62,7 +62,7 @@ class StaffDto:
         finally:
             connection.close()
 
-    def select_surname(self):
+    def select_name_and_surname(self):
         connection = pymysql.connect(
             user=user,
             host=host,
@@ -82,6 +82,7 @@ class StaffDto:
             connection.close()
 
     def select_staff_by_surname_name(self, surname, name):
+        print(surname, name)
         connection = pymysql.connect(
             user=user,
             host=host,
