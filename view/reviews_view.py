@@ -1,7 +1,11 @@
+import csv
 import datetime
 import tkinter as tk
 from tkinter import ttk
 import tkinter.font as font
+
+import docx
+import pandas as pd
 
 from tkcalendar import DateEntry
 
@@ -52,14 +56,45 @@ class ReviewsView:
         label.pack()
 
     def init_button_word(self, frame):
-        btn_cancel = ttk.Button(frame, text="Общий отчет Word")  # command=
+        btn_cancel = ttk.Button(frame, text="Общий отчет Word", command=self.word)  # command=
         btn_cancel.pack(side=tk.LEFT)
         return btn_cancel
 
+    def word(self):
+        self.create_cvs_form_table('source.csv')
+        doc = docx.Document()
+        with open('source.csv', newline='') as f:
+            csv_reader = csv.reader(f)
+
+            csv_headers = next(csv_reader)
+            csv_cols = len(csv_headers)
+
+            table = doc.add_table(rows=1, cols=csv_cols, style='Table Grid')
+            hdr_cells = table.rows[0].cells
+
+            for i in range(csv_cols):
+                hdr_cells[i].text = csv_headers[i]
+
+            for row in csv_reader:
+                row_cells = table.add_row().cells
+                for i in range(csv_cols):
+                    row_cells[i].text = row[i]
+
+        doc.add_page_break()
+        doc.save("Отзывы.docx")
+
     def init_button_excel(self, frame):
-        btn_cancel = ttk.Button(frame, text="Общий отчет Excel")  # command=
+        btn_cancel = ttk.Button(frame, text="Общий отчет Excel", command=self.exel)  # command=
         btn_cancel.pack(padx=80, side=tk.LEFT)
         return btn_cancel
+
+    def exel(self):
+        self.create_cvs_form_table('source.csv')
+        writer = pd.ExcelWriter('Отзывы.xlsx')
+        df = pd.read_csv('source.csv')
+        df.to_excel(writer, 'Отзывы', index=False)
+
+        writer.save()
 
     def init_button_employees(self, frame):
         btn_cancel = ttk.Button(frame, text="Отчет по сотруднику")  # command=
@@ -106,7 +141,6 @@ class ReviewsView:
     def set_data_to_table(self, reviews):
         for row in self.tree.get_children():
             self.tree.delete(row)
-
 
         for i in reviews:
             date = i['date'].strftime('%d.%m.%Y')
@@ -228,3 +262,18 @@ class ReviewsView:
             date = datetime.date(int(date_value[2]), int(date_value[1]), int(date_value[0]))
             reviews_dto.insert_reviews(department_id, staff_id, review_value, date)
         self.set_data_to_table(reviews_dto.select_reviews())
+
+    def create_cvs_form_table(self, path):
+        cols = ['ID', 'Отдел', 'Сотрудник', 'Отзыв', 'Дата']  # Your column headings here
+        lst = []
+        child = self.tree.get_children()
+        with open(path, "w", newline='') as myfile:
+            csvwriter = csv.writer(myfile, delimiter=',')
+            for row_id in child:
+                row = self.tree.item(row_id, 'values')[:-2]
+                print(row)
+                lst.append(row)
+            lst = list(map(list, lst))
+            lst.insert(0, cols)
+            for row in lst:
+                csvwriter.writerow(row)
