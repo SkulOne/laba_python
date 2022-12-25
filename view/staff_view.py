@@ -16,24 +16,28 @@ class StaffView:
         user_dto = StaffDto()
         users = user_dto.select_staff()
         self.set_data_to_table(users)
-        self.surnameEntry = self.init_entry_surname()
-        self.nameEntry = self.init_entry_name()
-        self.patronymicEntry = self.init_entry_patronymic()
-        self.phoneEntry = self.init_entry_phone()
-        self.emailEntry = self.init_entry_email()
-        self.button = self.init_button()
+        self.surname_entry = self.init_entry_surname()
+        self.name_entry = self.init_entry_name()
+        self.patronymic_entry = self.init_entry_patronymic()
+        self.phone_entry = self.init_entry_phone()
+        self.email_entry = self.init_entry_email()
+        self.add_button = self.init_add_button()
         self.root.pack()
 
     def init_table(self):
-        tree = ttk.Treeview(self.root, column=('ID', 'Surname', 'Name', 'Patronymic', 'Phone', 'Email'), height=10,
+        tree = ttk.Treeview(self.root,
+                            column=('ID', 'Surname', 'Name', 'Patronymic', 'Phone', 'Email', 'edit', 'delete'),
+                            height=10,
                             show='headings')
-
+        tree.bind('<ButtonRelease-1>', self.select_item)
         tree.column('ID', width=35, anchor=tk.CENTER)
         tree.column('Surname', anchor=tk.CENTER)
         tree.column('Name', anchor=tk.CENTER)
         tree.column('Patronymic', anchor=tk.CENTER)
         tree.column('Phone', anchor=tk.CENTER)
         tree.column('Email', anchor=tk.CENTER)
+        tree.column('edit', anchor=tk.CENTER, width=75)
+        tree.column('delete', anchor=tk.CENTER, width=75)
 
         tree.heading('ID', text='ID')
         tree.heading('Surname', text='Фамилия')
@@ -41,12 +45,49 @@ class StaffView:
         tree.heading('Patronymic', text='Отчество')
         tree.heading('Phone', text='Телефон')
         tree.heading('Email', text='Email')
+        tree.heading('edit', text='Правка')
+        tree.heading('delete', text='Удалить')
         tree.pack()
         return tree
 
     def init_heading(self):
         label = ttk.Label(self.root, text='Таблица "Заголовки"', font=font.Font(size=40))
         label.pack()
+
+    def select_item(self, event):
+        cur_item = self.tree.item(self.tree.focus())
+        print(cur_item)
+        col = self.tree.identify_column(event.x)[1]
+        method = cur_item['values'][int(col) - 1]
+        if method == 'УДАЛИТЬ':
+            staff_dto = StaffDto()
+            staff_dto.delete_by_id(cur_item['values'][0])
+            self.set_data_to_table(staff_dto.select_staff())
+        if method == 'ПРАВКА':
+            self.surname_entry.insert(0, cur_item['values'][1])
+            self.name_entry.insert(0, cur_item['values'][2])
+            self.patronymic_entry.insert(0, cur_item['values'][3])
+            self.phone_entry.insert(0, cur_item['values'][4])
+            self.email_entry.insert(0, cur_item['values'][5])
+            self.add_button.config(text='Править', command=lambda: self.update(cur_item['values'][0]))
+
+    def update(self, id):
+        staff_dto = StaffDto()
+        surname_entry_value = self.surname_entry.get()
+        name_entry_value = self.name_entry.get()
+        patronymic_entry_value = self.patronymic_entry.get()
+        phone_entry_value = self.phone_entry.get()
+        email_entry_value = self.email_entry.get()
+        if surname_entry_value and name_entry_value and patronymic_entry_value and phone_entry_value and email_entry_value:
+            staff_dto.update(id, surname_entry_value, name_entry_value, patronymic_entry_value, phone_entry_value, email_entry_value)
+        self.surname_entry.delete(0, tk.END)
+        self.name_entry.delete(0, tk.END)
+        self.patronymic_entry.delete(0, tk.END)
+        self.phone_entry.delete(0, tk.END)
+        self.email_entry.delete(0, tk.END)
+        self.add_button.config(text='Добавить', command=self.save)
+        self.set_data_to_table(staff_dto.select_staff())
+
 
     def init_search_name(self):
         frame = tk.Frame(self.root)
@@ -132,22 +173,22 @@ class StaffView:
 
     def save(self):
         user_dto = StaffDto()
-        name = self.nameEntry.get()
-        surname = self.surnameEntry.get()
-        patronymic = self.patronymicEntry.get()
-        phone = self.phoneEntry.get()
-        email = self.emailEntry.get()
+        name = self.name_entry.get()
+        surname = self.surname_entry.get()
+        patronymic = self.patronymic_entry.get()
+        phone = self.phone_entry.get()
+        email = self.email_entry.get()
         if name and surname:
             user_dto.insert_staff(surname, name, patronymic, phone, email)
             users = user_dto.select_staff()
             self.set_data_to_table(users)
-            self.nameEntry.delete(0, 'end')
-            self.surnameEntry.delete(0, 'end')
-            self.patronymicEntry.delete(0, 'end')
-            self.phoneEntry.delete(0, 'end')
-            self.emailEntry.delete(0, 'end')
+            self.name_entry.delete(0, 'end')
+            self.surname_entry.delete(0, 'end')
+            self.patronymic_entry.delete(0, 'end')
+            self.phone_entry.delete(0, 'end')
+            self.email_entry.delete(0, 'end')
 
-    def init_button(self):
+    def init_add_button(self):
         btn = ttk.Button(self.root, text="Добавить", command=self.save)
         btn.pack(side=tk.RIGHT)
         return btn
@@ -158,4 +199,6 @@ class StaffView:
 
         for i in users:
             self.tree.insert('', 'end',
-                             values=(i['id'], i['surname'], i['name'], i['patronymic'], i['phone'], i['email']))
+                             values=(
+                             i['id'], i['surname'], i['name'], i['patronymic'], i['phone'], i['email'], 'ПРАВКА',
+                             'УДАЛИТЬ'))

@@ -98,3 +98,39 @@ class StaffDto:
 
         finally:
             connection.close()
+
+    def delete_by_id(self, staff_id):
+        connection = pymysql.connect(
+            user=user,
+            host=host,
+            port=3306,
+            password=password,
+            database=db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        try:
+            with connection.cursor() as cursor:
+                select_table_query = f'DELETE from staff WHERE id=%s'
+                cursor.execute(select_table_query, staff_id)
+                connection.commit()
+
+        finally:
+            connection.close()
+
+    def update(self, staff_id, surname, name, patronymic, phone, email):
+            connection = pymysql.connect(
+                user=user,
+                host=host,
+                port=3306,
+                password=password,
+                database=db_name,
+                cursorclass=pymysql.cursors.DictCursor
+            )
+            try:
+                with connection.cursor() as cursor:
+                    select_table_query = f'UPDATE staff SET surname=%s, name=%s, patronymic=%s, phone=%s, email=%s where id=%s'
+                    cursor.execute(select_table_query, (surname, name, patronymic, phone, email, staff_id))
+                    connection.commit()
+
+            finally:
+                connection.close()

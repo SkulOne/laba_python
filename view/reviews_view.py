@@ -180,6 +180,7 @@ class ReviewsView:
             reviews_dto.delete_by_id(cur_item['values'][0])
             self.set_data_to_table(reviews_dto.select_reviews())
         if method == 'ПРАВКА':
+            print(cur_item)
             self.staff_select.set(cur_item['values'][2])
             self.department_select.set(cur_item['values'][1])
             self.date_entry.set_date(cur_item['values'][4])
