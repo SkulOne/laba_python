@@ -27,33 +27,53 @@ class DepartmentView:
         self.set_data_to_table(departments)
 
         # Инициализируем блок добавления
-        self.nameEntry = self.init_entry_name()
-        self.directorEntry = self.init_entry_director()
-        self.employees_cont_entry = self.init_entry_employees_count()
-        self.work_place_cont_entry = self.init_entry_workplace_count()
+        self.name_entry = self.init_entry_name()
+        self.director_entry = self.init_entry_director()
+        self.employees_count_entry = self.init_entry_employees_count()
+        self.workplace_count_entry = self.init_entry_workplace_count()
         self.add_button = self.init_add_button()
         self.root.pack()
         self.search_block.pack()
 
 
     def init_table(self):
-        tree = ttk.Treeview(self.root, column=('ID', 'department_name', 'director', 'number_of_employees', 'number_of_jobs'), height=10,
+        tree = ttk.Treeview(self.root, column=('ID', 'department_name', 'director', 'number_of_employees', 'number_of_jobs', 'edit', 'delete'), height=10,
                             show='headings')
-        tree.bind('<Double-1>', self.route)
+        tree.bind('<ButtonRelease-1>', self.select_item)
 
         tree.column('ID', width=35, anchor=tk.CENTER)
         tree.column('department_name', anchor=tk.CENTER)
         tree.column('director', anchor=tk.CENTER)
         tree.column('number_of_employees', anchor=tk.CENTER)
         tree.column('number_of_jobs', anchor=tk.CENTER)
+        tree.column('edit', anchor=tk.CENTER, width=75)
+        tree.column('delete', anchor=tk.CENTER, width=75)
+
 
         tree.heading('ID', text='ID')
         tree.heading('department_name', text='Наименование')
         tree.heading('director', text='Руководитель')
         tree.heading('number_of_employees', text='Количество сотрудников')
         tree.heading('number_of_jobs', text='Количество рабочих мест')
+        tree.heading('edit', text='Правка')
+        tree.heading('delete', text='Удалить')
         tree.pack()
         return tree
+
+    def select_item(self, event):
+        cur_item = self.tree.item(self.tree.focus())
+        col = self.tree.identify_column(event.x)[1]
+        method = cur_item['values'][int(col) - 1]
+        if method == 'УДАЛИТЬ':
+            department_dto = DepartmentDto()
+            department_dto.delete_by_id(cur_item['values'][0])
+            self.set_data_to_table(department_dto.select_department())
+        if method == 'ПРАВКА':
+            self.name_entry.insert(0, cur_item['values'][1])
+            self.director_entry.insert(0, cur_item['values'][2])
+            self.employees_count_entry.insert(0, cur_item['values'][3])
+            self.workplace_count_entry.insert(0, cur_item['values'][4])
+            self.add_button.config(text='Править', command=lambda: self.update(cur_item['values'][0]))
 
     def init_heading(self):
         label = ttk.Label(self.root, text='Таблица "Отделы"', font=font.Font(size=40))
@@ -133,16 +153,16 @@ class DepartmentView:
 
     def save(self):
         department_dto = DepartmentDto()
-        name = self.nameEntry.get()
-        director = self.directorEntry.get()
-        employees_count = self.employees_cont_entry.get()
-        workplace_count = self.work_place_cont_entry.get()
+        name = self.name_entry.get()
+        director = self.director_entry.get()
+        employees_count = self.employees_count_entry.get()
+        workplace_count = self.workplace_count_entry.get()
         if employees_count and workplace_count and employees_count and workplace_count:
             department_dto.insert_department(name, director, employees_count, workplace_count)
             users = department_dto.select_department()
             self.set_data_to_table(users)
-            self.nameEntry.delete(0, 'end')
-            self.directorEntry.delete(0, 'end')
+            self.name_entry.delete(0, 'end')
+            self.director_entry.delete(0, 'end')
             self.search_employees_entry.delete(0, 'end')
             self.search_workplace_entry.delete(0, 'end')
 
@@ -164,7 +184,7 @@ class DepartmentView:
 
         for i in departments:
             self.tree.insert('', 'end',
-                             values=(i['id'], i['name'], i['director'], i['employees_count'], i['workplace_count']))
+                             values=(i['id'], i['name'], i['director'], i['employees_count'], i['workplace_count'], 'ПРАВКА', 'УДАЛИТЬ'))
 
     def route(self, event):
         print(event)
@@ -172,3 +192,18 @@ class DepartmentView:
         id = self.tree.item(selected_item, option="values")[0]
         self.root.destroy()
         staff = StaffView(id)
+
+    def update(self, id):
+        department_dto = DepartmentDto()
+        name_value = self.name_entry.get()
+        director_value = self.director_entry.get()
+        employees_value = self.employees_count_entry.get()
+        workplace_count_value = self.workplace_count_entry.get()
+        if name_value and director_value and employees_value and workplace_count_value:
+            department_dto.update(id, name_value, director_value, employees_value, workplace_count_value)
+        self.name_entry.delete(0, tk.END)
+        self.director_entry.delete(0, tk.END)
+        self.employees_count_entry.delete(0, tk.END)
+        self.workplace_count_entry.delete(0, tk.END)
+        self.add_button.config(text='Добавить', command=self.save)
+        self.set_data_to_table(department_dto.select_department())

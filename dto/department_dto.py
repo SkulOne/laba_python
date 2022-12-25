@@ -20,7 +20,6 @@ class DepartmentDto:
                                      "employees_count int(32)," \
                                      "workplace_count int(16), PRIMARY KEY (id));"
                 cursor.execute(create_table_query)
-                print("Table created successfully")
 
         finally:
             connection.close()
@@ -112,6 +111,42 @@ class DepartmentDto:
                 select_table_query = f'SELECT * from department WHERE name=%s'
                 cursor.execute(select_table_query, name)
                 return cursor.fetchall()
+
+        finally:
+            connection.close()
+
+    def delete_by_id(self, department_id):
+        connection = pymysql.connect(
+            user=user,
+            host=host,
+            port=3306,
+            password=password,
+            database=db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        try:
+            with connection.cursor() as cursor:
+                select_table_query = f'DELETE from department WHERE id=%s'
+                cursor.execute(select_table_query, department_id)
+                connection.commit()
+
+        finally:
+            connection.close()
+
+    def update(self, department_id, name, director, employees_count, workplace_count):
+        connection = pymysql.connect(
+            user=user,
+            host=host,
+            port=3306,
+            password=password,
+            database=db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        try:
+            with connection.cursor() as cursor:
+                select_table_query = f'UPDATE department SET name=%s, director=%s, employees_count=%s, workplace_count=%s where id=%s'
+                cursor.execute(select_table_query, (name, director, employees_count, workplace_count, department_id))
+                connection.commit()
 
         finally:
             connection.close()

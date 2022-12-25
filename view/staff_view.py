@@ -56,7 +56,6 @@ class StaffView:
 
     def select_item(self, event):
         cur_item = self.tree.item(self.tree.focus())
-        print(cur_item)
         col = self.tree.identify_column(event.x)[1]
         method = cur_item['values'][int(col) - 1]
         if method == 'УДАЛИТЬ':
